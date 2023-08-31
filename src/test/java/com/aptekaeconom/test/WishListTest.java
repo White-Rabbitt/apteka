@@ -1,0 +1,58 @@
+package com.aptekaeconom.test;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static com.codeborne.selenide.Selenide.closeWebDriver;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+public class WishListTest extends ProductCardPage {
+
+
+  @BeforeEach
+  public void setUp() {
+    open();
+  }
+
+  @AfterEach
+  public void tearDown() {
+    closeWebDriver();
+  }
+
+  @Test
+  public void selectedItemTest() {
+    checkAvailabilityStatus();
+    selectWishIconClick();
+    String nameItemMainPage = getTextProductItemCard();
+
+    assertTrue(checkPriceWishList());
+
+    BasketProductPage basketProductPage = new BasketProductPage();
+    clickBasketIcon();
+    basketProductPage.checkHeaderBasketPage();
+    String nameItemBasketPage = basketProductPage.getTextItemBasketPage();
+
+    assertEquals(nameItemMainPage, nameItemBasketPage);
+    assertTrue(basketProductPage.checkOrderAmount(0));
+  }
+
+  @Test
+  public void addWishItemToOrder() {
+    System.setProperty("webdriver.http.factory", "jdk-http-client");
+    checkAvailabilityStatus();
+    selectWishIconClick();
+
+    int price = Integer.parseInt(getPriceValue());
+
+    BasketProductPage basketProductPage = new BasketProductPage();
+    clickBasketIcon();
+    basketProductPage
+            .checkHeaderBasketPage()
+            .addWishItemToOrder()
+            .checkLinkAddWishItemToOrderNotVisible();
+
+    assertTrue(basketProductPage.checkOrderAmount(price));
+  }
+}
